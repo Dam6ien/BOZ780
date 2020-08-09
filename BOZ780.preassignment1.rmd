@@ -1,0 +1,309 @@
+---
+title: "BOZ 780 - Pre-assignment 1"
+output: html_notebook
+author: "Damien Sousa de Gouveia 150003079"
+---
+```{r, echo=FALSE, results='hide', warning=FALSE}
+library(tidyverse)
+library(lpSolve)
+
+insto_matrix <- function(len, index){
+  out <- rep(0,len)
+  out[index] <- 1
+  return(out)
+}
+library(gMOIP)
+
+```
+
+
+# 1 Rardin, Problem 2-22
+### Problem formulation
+
+The following decision variables and parameters are defined.
+$$
+\begin{align}
+s_i &= \text{\{1 = site selected, 0 = site not selected \}} \\
+c_i &= \text{cost per site} \\
+a_{ji} &= \text{availbility per site $i$ per region $j$ } \\
+&i \in \{1,\dots,4\} \\
+&j \in \{1,\dots,5\}
+\end{align}
+$$
+
+The following objective function is formulated to calculate the site cost
+
+$$
+\begin{align}
+\min z = \sum_{i=1}^4 s_i \times c_i
+\end{align}
+$$
+
+Subject to the following constraints
+
+$$
+\begin{align}
+\sum_{i=1}^4 s_i \times a_{ji} &>= 1 &\forall j \in \{1,\dots,5\} \\
+\sum_{i=1}^4 s_i &<= 4 &i \in \{1,\dots,4\} \\
+\end{align}
+$$
+
+### Solution
+The decision variables and parameters are initiated
+```{r}
+i <- 4
+j <- 5
+c_i <- c(200,40,55,75) 
+```
+The constraints are formulated algebraically
+```{r}
+cons_1 <- rep(1,i)
+cons_j1 <- matrix(insto_matrix(len = i, c(1,2)),nrow = 1, ncol = i) # well 1 supply limit
+cons_j2 <- matrix(insto_matrix(len = i, c(1,2,3)),nrow = 1, ncol = i) # well 1 supply limit
+cons_j3 <- matrix(insto_matrix(len = i, c(1,3,4)),nrow = 1, ncol = i) # well 1 supply limit
+cons_j4 <- matrix(insto_matrix(len = i, c(1,2)),nrow = 1, ncol = i) # well 1 supply limit
+cons_j5 <- matrix(insto_matrix(len = i, c(1,4)),nrow = 1, ncol = i) # well 1 supply limit
+```
+
+The solution is calculated using the $lpSolve$ interface
+```{r}
+# Set coefficients of the objective function
+f.obj <- c_i
+
+# Set matrix corresponding to coefficients of constraints by rows
+# Do not consider the non-negative constraint; it is automatically assumed
+f.con <- rbind(cons_1, cons_j1, cons_j2, cons_j3, cons_j4, cons_j5)
+f.con
+
+# Set inequality signs
+f.dir <- c("<", #cons_1
+           rep(">=",j)) #cons_j1 - consj5
+
+
+# Set right hand side coefficients
+f.rhs <- c(4, #cons_1
+           rep(1,j)) #cons_j1 - consj5
+
+# Final value (z)
+lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)
+
+# Variables final values
+lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution
+
+```
+
+
+
+# 2 Rardin, Problem 2-27
+### Problem formulation
+The following decision variables and parameters are defined.
+$$
+\begin{align}
+x_i &= \text{pumping rate for the $i$'th pump in gal/min} \\ 
+c_i &= \text{cost for operating the $i$'th pump in \$/gal/min} \\
+l_i &= \text{upper pumping limit the $i$'th pump in gal/min} \\
+w_j &= \text{upper supply limit for well the $j$'ith well in gal/min} \\
+d &= \text{city demand in gal/min} \\
+&i \in \{1,\dots,10\} \\
+&j \in \{1,2,3\}
+\end{align}
+$$
+
+The following objective function is defined to quantify the pumping cost.
+
+$$
+\begin{align}
+\min(z) =\sum_{i=1}^{10}x_i\times c_i
+\end{align}
+$$
+
+Subject to the following constraints 
+
+$$
+\begin{align}
+x_i &<= l_i & \forall i \in \{1,\dots,10\} \\ 
+x_1 + x_4 + x_7 &<= w_1 \\
+x_2 + x_5 + x_8 &<= w_2 \\
+x_3 + x_6 + x_9 +x_{10} &<= w_3 \\
+\sum_{i=1}^{10}x_i &>= d &i \in \{1,\dots,10\}\\
+\end{align}
+$$
+
+### Solution
+The decision variables and parameters are initiated
+```{r}
+i <- 10
+j <- 3
+x_i <- rep(0,i)
+c_i <- c(0.05,0.05,0.05,0.07,0.07,0.07,0.13,0.13,0.13,0.13) 
+l_i <- c(1100,1100,1100,1500,1500,1500,2500,2500,2500,2500)
+w_j <- c(3000,2500,7000)
+d <- 10000
+```
+The constraints are formulated algebraically
+```{r}
+cons_1 <- diag(i) #pumping limit cons
+cons_2 <- matrix(insto_matrix(len = i, c(1,4,7)),nrow = 1, ncol = i) # well 1 supply limit
+cons_3 <- matrix(insto_matrix(len = i, c(2,5,8)),nrow = 1, ncol = i) # well 2 supply limit
+cons_4 <- matrix(insto_matrix(len = i, c(3,6,9,10)),nrow = 1, ncol = i) # well 3 supply limit
+cons_5 <- matrix(rep(1,i),nrow = 1) # demand requirement
+```
+
+The solution is calculated using the $lpSolve$ interface
+```{r}
+# Set coefficients of the objective function
+f.obj <- c_i
+
+# Set matrix corresponding to coefficients of constraints by rows
+# Do not consider the non-negative constraint; it is automatically assumed
+f.con <- rbind(cons_1, cons_2, cons_3, cons_4, cons_5)
+
+# Set inequality signs
+f.dir <- c(rep("<=",i), #cons_1
+           "<=", #cons_2
+           "<=", #cons_3
+           "<=", #cons_4
+           ">=") #cons_5
+
+# Set right hand side coefficients
+f.rhs <- c(l_i, #cons_1
+           w_j, #cons_2 to cons_4
+           d) #cons_5
+
+# Final value (z)
+lp("min", f.obj, f.con, f.dir, f.rhs)
+
+# Variables final values
+lp("min", f.obj, f.con, f.dir, f.rhs)$solution
+
+```
+
+# 3 Rardin, Problem 2-28
+### Problem formulation
+1. The decision to select or exclude a project is binary (yes or no). If a project is taken there are fixed costs associated with it that do not scale based on the decision variable. Thus a binary decision variable aptly reifies the model. The set for which the decision variable is defined corresponds to the number of projects and this a binary decision is made for each project.
+
+2.Symbolic names for constants
+$$
+\begin{align}
+a_j &= \text{\{1 if resource is available 0 if resource not required \}} & j \in \{ 1, \dots , 10 \} \\
+p_i &= \text{profit generated for the $i$'th project} \\
+r_i &= \text{resource requirement for the $i$'th project}\\
+c_i &= \text{CPU requirement for the $i$'th project}\\
+\end{align}
+$$
+3. Objective function
+$$
+\begin{align}
+\max z = \sum_{i=1}^8 x_i \times p_i
+\end{align}
+$$
+4. Resource constraint
+The decision variables are to be extended to include an additional set of sudo-decision variables. The decision to continue employment or retrench workers is seen as a binary decision and thus $a_j$ is included in the constraint formulation. Note that these decision variables do not form part of the cost function.
+$$
+\begin{align}
+1. \sum_{i=1}^{8}x_i \times r_i-\sum_{j=1}^{10}a_j \times 240 \leq 0 \\
+2.1\sum_{j=1}^{10}a_j  \leq 10 \\
+2.2\sum_{j=1}^{10}a_j  \geq 7 \\
+\end{align}
+$$
+4. Remaining constraints
+Enforce the limit on computer time (4), meet the requirements to select at least three projects (5), and include at least one of the director’s favorites (6).
+$$
+\begin{align}
+4.& \sum_{i=1}^{8}x_i \times c_i \leq 1 \,000 \\
+5.&\sum_{i=1}^{8}x_i \geq 3\\
+6.& \, x_3 + x_4 + x_5 + x_8 \geq 1 \\
+\end{align}
+$$
+
+4. Variable constraints
+$$
+\begin{align}
+x_i &\geq 0 & \forall i \in \{1,\dots,8\}\\
+a_j &\geq 0 & \forall j \in \{1,\dots,10\}
+\end{align}
+$$
+
+5. Model classification
+The objective function and constraints are linear, convex functions with binary decision variables thus making the model an Integer Linear Program (ILP). There is a single objective function, to maximize profit and thus this problem is a single objective.
+
+### Solution
+
+Initialize decision variables and parameters
+```{r}
+i <-  8
+j <- 10
+mat_i <- matrix(1,1,i) #dummy matrix for x coefficients
+mat_j <- matrix(1,1,j) #dummy matrix for a coefficients
+
+p_i <- c(2.1, 0.5, 3, 2, 1, 1.5, 0.6, 1.8) #profit
+r_i <- c(550, 400, 300, 350, 450, 500, 350, 200) #resource requirement
+c_i <- c(200, 150, 400, 450, 300, 150, 200, 600) #cpu limit
+
+```
+The constraints are formulated algebraically
+```{r}
+cons_1 <- cbind(mat_i*r_i,mat_j*-240)
+cons_2 <- cbind(mat_i*0,mat_j)
+cons_3 <- cbind(mat_i*0,mat_j)
+cons_4 <- cbind(mat_i*c_i,mat_j*0)
+cons_5 <- cbind(mat_i,mat_j*0)
+cons_6 <- cbind(matrix(insto_matrix(i,c(3,4,5,8)),nrow = 1),mat_j*0)
+```
+The solution is calculated using the $lpSolve$ interface
+```{r}
+# Set coefficients of the objective function
+f.obj <- cbind(mat_i*p_i,mat_j*0)
+
+# Set matrix corresponding to coefficients of constraints by rows
+# Do not consider the non-negative constraint; it is automatically assumed
+f.con <- rbind(cons_1, cons_2, cons_3, cons_4, cons_5, cons_6)
+
+# Set inequality signs
+f.dir <- c("<=", #cons_1
+           "<=", #cons_2
+           ">=", #cons_3
+           "<=", #cons_4
+           ">=", #cons_5
+           ">=") #cons_6
+
+# Set right hand side coefficients
+f.rhs <- c(0,  #cons_1
+           10,#cons_2
+           7, #cons_3
+           1000,#cons_4
+           3,#cons_5
+           1) #cons_6
+
+# Final value (z)
+lp("max", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)
+
+# Variables final values
+print("Projects")
+lp("max", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution[1:i]
+
+print("Resources")
+res <- lp("max", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution[i+1:j]
+res
+paste("Resource usage at ", round(sum(res)/j*100,digits = 2),"%", sep = "")
+```
+
+# 4 Winston & Venkataramanan, Section 9.2, Problem 24
+### Problem formulation
+### Solution
+
+# 5 Winston & Venkataramanan, Section 9.2, Problem 32
+### Problem formulation
+### Solution
+
+# 6 Winston & Venkataramanan, Chapter 9, Review problem 24
+### Problem formulation
+### Solution
+
+# 7 Trans-shipment problem
+### Problem formulation
+### Solution
+
+# 8 Blending problem
+### Problem formulation
+### Solution
