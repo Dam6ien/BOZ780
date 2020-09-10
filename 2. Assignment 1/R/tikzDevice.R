@@ -14,8 +14,7 @@ tikz(file = "plot_test.tex", width = 5, height = 5)
 plot <- ggplot(data, aes(x = x, y = y)) + 
   geom_line() +
   #Space does not appear after Latex
-  ggtitle( paste("Fancy \\LaTeX ", "\\hspace{0.01cm} title")) +
-  labs( x = "$x$ = Time", y = "$\\Phi$ = Innovation output") +
+  ggtitle( paste("Fancy")) +
   theme_bw()
 #This line is only necessary if you want to preview the plot right after compiling
 print(plot)

@@ -4,6 +4,11 @@ library(lpSolve)
 
 ### ================ Question 1 
 
+w <- 12
+h <- 12
+
+
+
 lp(direction = "min",
    objective.in = c(1,4),
    const.mat = matrix(c(-5,1,1,0,1,
@@ -47,8 +52,10 @@ data.frame(x, c1,c2,c3,c4) %>%
   labs(x="X2", y="X1", title = "Optimal points for Z1 and Z2")+
   geom_abline(slope = 1/5, intercept = c(4,-1), linetype = "dashed", color = "black")+
   geom_abline(slope = -4, intercept = c(4,20), linetype = "dotted", color = "black")+
-  geom_label(data = df.pointsOptimal,aes(x+.3,y,label=pointOptimal.coords))+
+  geom_label(data = df.pointsOptimal,aes(x+.5,y,label=pointOptimal.coords))+
   theme_light()
+
+ggsave("Optimal points for Z1 and Z2.pdf",dpi = "retina", width = w, height = h, units = "cm")
 
 # === Which points are eff
 
@@ -68,8 +75,10 @@ data.frame(x, c1,c2,c3,c4) %>%
   labs(x="X2", y="X1", title = "Efficient, dominated and other points")+
   geom_abline(slope = 1/5, intercept = z1.intercept, linetype = "dashed", color = "black")+
   geom_abline(slope = -4, intercept = z2.intercept, linetype = "dotted", color = "black")+
-  geom_label(data = df.points,aes(x+.3,y,label=point.coords))+
+  geom_label(data = df.points,aes(x+.5,y,label=point.coords))+
   theme_light()
+
+ggsave("Efficient, dominated and other points.pdf",dpi = "retina", width = w, height = h, units = "cm")
 
 # Question 1 c - pre-emptive
 
@@ -115,9 +124,10 @@ data.frame(x,c1,c2,c3,c4) %>%
   labs(x="X2", y="X1", title = "Pre-emptive")+
   geom_abline(slope = 1/5, intercept = z1.intercept, linetype = "dashed", color = "black")+
   geom_abline(slope = -4, intercept = z2.intercept, linetype = "dotted", color = "black")+
-  geom_label(data = df.pointsOptimal,aes(x+.3,y,label=point.coords))+
+  geom_label(data = df.pointsOptimal,aes(x+.5,y,label=point.coords))+
   theme_light()
 
+ggsave("Pre-emptive.pdf",dpi = "retina", width = w, height = h, units = "cm")
 
 # Eff fronteir 
 
@@ -146,6 +156,6 @@ df.eff %>%
   geom_label(aes(x,y+.3,label=paste(x,y,sep=",")))+
   theme_light()
   
-
+ggsave("Efficient frontier.pdf",dpi = "retina", width = w, height = h, units = "cm")
 
 

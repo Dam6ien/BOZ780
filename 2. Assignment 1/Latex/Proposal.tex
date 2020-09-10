@@ -44,10 +44,52 @@
 
 \section{Question 1}
 
+\section{Question 2}
+
+Sets\\
+
+\begin{tabular}{ll}
+$I$ & set of facility types $I \in (1,\dots,4)$ as (Golf, Swimming, Gymnasium, Tennis)\\
+$J$ & set of sites $J \in (1,\dots, 6)$ 
+\end{tabular}\\
+
+Parameters\\
+
+\begin{tabular}{lll}
+$d_{ij}$ & \text{user days for facility $i$ on site $j$} & $i \in I, j \in J$\\
+$a_{j}$ & \text{available land on site $j$ in ft$^2$} &  $j \in J$\\
+$c_{i}$ & \text{construction cost for facility $i$ in \$} & $i \in I$\\
+$r_{i}$ & \text{required land for facility $i$ in ft$^2$} & $i \in I$
+\end{tabular}\\
 
 
+Variables\\
 
+\begin{tabular}{lll}
+$x_{ij}$ & 
+	\begin{cases} 
+      	1 & \text{facility $i$ is built on site $j$} \\
+      	0 & \text{if else} 
+	\end{cases} & $i \in I, j \in J$
+\end{tabular}\\
 
+\setcounter{equation}{0}	
+Objectives
+
+\begin{align}
+\min \quad & \sum_{i\in I} \sum_{j\in J} x_{ij}c_i & \text{(construction cost)} \\
+\min \quad & \sum_{i\in I} \sum_{j\in J} x_{ij}a_j-x_{ij}r_i  & \text{(unused land cost)} \\
+\max \quad & \sum_{i\in I} \sum_{j\in J} x_{ij}u_{ij}  & \text{(user days)} 
+\end{align}
+
+Constraints
+
+\begin{align}
+\sum_{j:(i,j) \in A} x^k_{ij}-\sum_{j:(j,i) \in A} x^k_{ji}
+&= b_i^k && \forall k\in K,i\in N \\
+\sum_{k\in K} x^k_{ij}&\leq u_{ij} && \forall (i,j)\in A \\
+0\leq x^k_{ij} &\leq u_{ij}^k && \forall k\in K,(i,j)\in A
+\end{align}
 
 
 
