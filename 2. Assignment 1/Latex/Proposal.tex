@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{elsarticle}
+\documentclass[a4paper,11pt]{article}
 
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
@@ -16,10 +16,8 @@
 		urlcolor=blue,
 		citecolor=blue
 	}
-\usepackage[sort&compress]{natbib}
-	\bibliographystyle{apalike}
-\usepackage[mark]{gitinfo2}
- \renewcommand{\gitMark}{Branch:\,\gitBranch\,@\,\gitAbbrevHash{}; Author:\,\gitAuthorName; Date:\,\gitAuthorIsoDate~\textbullet{}}
+%\usepackage[sort&compress]{natbib}
+%	\bibliographystyle{apalike}
 \usepackage{soul}
 \usepackage{url}
 
@@ -29,6 +27,12 @@
 
 \newcommand{\jwj}[1]{{\color{red}{~(jwj: #1)}}}
 \newcommand{\yourInitials}[1]{{\color{blue}{~(yourInitials: #1)}}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{}{10pt}{}
+\titleformat{\subsubsection}{\normalfont\small\bfseries}{}{30pt}{}
+
 
 %=======================================
 
@@ -44,16 +48,18 @@
 
 \section{Question 1}
 
+\newpage
 \section{Question 2}
+\subsection{Question 2 (a) - General formulation}
 
-Sets\\
+\subsubsection{Sets}
 
 \begin{tabular}{ll}
 $I$ & set of facility types $I \in (1,\dots,4)$ as (Golf, Swimming, Gymnasium, Tennis)\\
 $J$ & set of sites $J \in (1,\dots, 6)$ 
 \end{tabular}\\
 
-Parameters\\
+\subsubsection{Parameters}
 
 \begin{tabular}{lll}
 $d_{ij}$ & \text{user days for facility $i$ on site $j$} & $i \in I, j \in J$\\
@@ -63,18 +69,19 @@ $r_{i}$ & \text{required land for facility $i$ in ft$^2$} & $i \in I$
 \end{tabular}\\
 
 
-Variables\\
+\subsubsection{Variables}
 
 \begin{tabular}{lll}
 $x_{ij}$ & 
-	\begin{cases} 
+	$\begin{cases} 
       	1 & \text{facility $i$ is built on site $j$} \\
       	0 & \text{if else} 
-	\end{cases} & $i \in I, j \in J$
+	\end{cases}$ & $i \in I, j \in J$
 \end{tabular}\\
 
 \setcounter{equation}{0}	
-Objectives
+
+\subsubsection{Objectives}
 
 \begin{align}
 \min \quad & \sum_{i\in I} \sum_{j\in J} x_{ij}c_i & \text{(construction cost)} \\
@@ -82,22 +89,228 @@ Objectives
 \max \quad & \sum_{i\in I} \sum_{j\in J} x_{ij}u_{ij}  & \text{(user days)} 
 \end{align}
 
-Constraints
+\subsubsection{Constraints}
 
 \begin{align}
-\sum_{j:(i,j) \in A} x^k_{ij}-\sum_{j:(j,i) \in A} x^k_{ji}
-&= b_i^k && \forall k\in K,i\in N \\
-\sum_{k\in K} x^k_{ij}&\leq u_{ij} && \forall (i,j)\in A \\
-0\leq x^k_{ij} &\leq u_{ij}^k && \forall k\in K,(i,j)\in A
+\sum_{i\in I} x_{ij}r_i &\leq a_j && \forall j\in J & \text{(land capacity)}        \\
+x_{i1}+x_{i6} &= 0  && \forall i \in (2,3,4)  & \text{(no facilities on site 1 and 6)}\\
+x_{1j} &= 0 && \forall j\in (2,3,4,5) & \text{(no golf on site 2 to 4)}\\
+x_{11} + x_{16} &\leq 1 && & \text{(either site 1 or 6 can build golf)}
 \end{align}
 
+\newpage
+\subsection{Question 2 (b) - Basic goal programming}
+\subsubsection{Sets}
+\begin{tabular}{lll}
+	$K$ & set of objectives $K \in (1,2,3)$\\
+	$I$ & set of facility types $I \in (1,\dots,4)$ as (Golf, Swimming, Gymnasium, Tennis)\\
+$J$ & set of sites $J \in (1,\dots, 6)$ 
+\end{tabular}
+
+\subsubsection{Parameters}
+
+\begin{tabular}{lll}
+$d_{ij}$ & \text{user days for facility $i$ on site $j$} & $i \in I, j \in J$\\
+$a_{j}$ & \text{available land on site $j$ in ft$^2$} &  $j \in J$\\
+$c_{i}$ & \text{construction cost for facility $i$ in \$} & $i \in I$\\
+$r_{i}$ & \text{required land for facility $i$ in ft$^2$} & $i \in I$
+\end{tabular}\\
 
 
+\subsubsection{Variables}
+
+\begin{tabular}{lll}
+$x_{ij}$ & 
+$	\begin{cases} 
+      	1 & \text{facility $i$ is built on site $j$} \\
+      	0 & \text{if else} 
+	\end{cases}$ & $i \in I, j \in J$\\
+$d_k$ & deficiency variable for objective $k$ & $k\in K$
+\end{tabular}
+
+\subsubsection{Objectives}
+
+\begin{align}
+\min \quad & \sum_{k\in K} d_k & \text{(construction cost)}
+\end{align}
+\subsubsection{Constraints}
+
+\begin{align}
+\sum_{i\in I} \sum_{j\in J} x_{ij}(a_j-r_i) -d_1& \leq 40\ 000\ \text{ft}^2  & \text{(P1: unused land cost)} \\
+ \sum_{i\in I} \sum_{j\in J} x_{ij}c_i - d_2& < \$1.2\  \text{million} & \text{(P2: construction cost)} \\
+\sum_{i\in I} \sum_{j\in J} x_{ij}u_{ij} +d_3 & \geq 200\ 000\ \text{days}  & \text{(P3: user days)} 
+\end{align}
+\begin{align}
+\sum_{i\in I} x_{ij}r_i &\leq a_j && \forall j\in J & \text{(land capacity)}        \\
+x_{i1}+x_{i6} &= 0  && \forall i \in (2,3,4)  & \text{(no facilities on site 1 and 6)}\\
+x_{1j} &= 0 && \forall j\in (2,3,4,5) & \text{(no golf on site 2 to 4)}\\
+x_{11} + x_{16} &\leq 1 && & \text{(either site 1 or 6 can build golf)}
+\end{align}
+
+\subsubsection{Solution}
+
+\newpage
+\subsection{Question 2 (c) - Pre-emptive goal programming}
+
+\subsubsection{Sets}
+\begin{tabular}{lll}
+	$K$ & set of objectives $K \in (1,2,3)$\\
+	$I$ & set of facility types $I \in (1,\dots,4)$ as (Golf, Swimming, Gymnasium, Tennis)\\
+$J$ & set of sites $J \in (1,\dots, 6)$ 
+\end{tabular}
+
+\subsubsection{Parameters}
+
+\begin{tabular}{lll}
+$d_{ij}$ & \text{user days for facility $i$ on site $j$} & $i \in I, j \in J$\\
+$a_{j}$ & \text{available land on site $j$ in ft$^2$} &  $j \in J$\\
+$c_{i}$ & \text{construction cost for facility $i$ in \$} & $i \in I$\\
+$r_{i}$ & \text{required land for facility $i$ in ft$^2$} & $i \in I$
+\end{tabular}\\
 
 
+\subsubsection{Variables}
+
+\begin{tabular}{lll}
+$x_{ij}$ & 
+$	\begin{cases} 
+      	1 & \text{facility $i$ is built on site $j$} \\
+      	0 & \text{if else} 
+	\end{cases}$ & $i \in I, j \in J$\\
+$d_k$ & deficiency variable for objective $k$ & $k\in K$
+\end{tabular}
 
 
+\subsubsection{Objectives}
+\begin{align}
+\min \quad & d_1 & \\
+\min \quad & d_2 & \text{(subject to $d_1$)}\\
+\min \quad & d_3 & \text{(subject to $d_1$ and $d_2$)}
+\end{align}
 
-\bibliography{Example}
-\addcontentsline{toc}{section}{References}
+\subsubsection{Constraints}
+
+\begin{align}
+& d_1=0 & \text{(used in $d_2$ and $d_3$)} \\
+& d_2=0 & \text{(used in $d_3$)}
+\end{align}
+\begin{align}
+\sum_{i\in I} \sum_{j\in J} x_{ij}(a_j-r_i) -d_1& \leq 40\ 000\ \text{ft}^2  & \text{(P1: unused land cost)} \\
+ \sum_{i\in I} \sum_{j\in J} x_{ij}c_i - d_2& < \$1.2\  \text{million} & \text{(P2: construction cost)} \\
+\sum_{i\in I} \sum_{j\in J} x_{ij}u_{ij} +d_3 & \geq 200\ 000\ \text{days}  & \text{(P3: user days)} 
+\end{align}
+\begin{align}
+\sum_{i\in I} x_{ij}r_i &\leq a_j && \forall j\in J & \text{(land capacity)}        \\
+x_{i1}+x_{i6} &= 0  && \forall i \in (2,3,4)  & \text{(no facilities on site 1 and 6)}\\
+x_{1j} &= 0 && \forall j\in (2,3,4,5) & \text{(no golf on site 2 to 4)}\\
+x_{11} + x_{16} &\leq 1 && & \text{(either site 1 or 6 can build golf)}
+\end{align}
+\subsubsection{Solution}
+
+\newpage
+\subsection{Question 2 (d) - Weighted sum goal programming}
+\subsubsection{Sets}
+\begin{tabular}{lll}
+	$K$ & set of objectives $K \in (1,2,3)$\\
+	$I$ & set of facility types $I \in (1,\dots,4)$ as (Golf, Swimming, Gymnasium, Tennis)\\
+$J$ & set of sites $J \in (1,\dots, 6)$ 
+\end{tabular}
+
+\subsubsection{Parameters}
+
+\begin{tabular}{lll}
+$d_{ij}$ & \text{user days for facility $i$ on site $j$} & $i \in I, j \in J$\\
+$a_{j}$ & \text{available land on site $j$ in ft$^2$} &  $j \in J$\\
+$c_{i}$ & \text{construction cost for facility $i$ in \$} & $i \in I$\\
+$r_{i}$ & \text{required land for facility $i$ in ft$^2$} & $i \in I$
+\end{tabular}\\
+
+
+\subsubsection{Variables}
+
+\begin{tabular}{lll}
+$x_{ij}$ & 
+$	\begin{cases} 
+      	1 & \text{facility $i$ is built on site $j$} \\
+      	0 & \text{if else} 
+	\end{cases}$ & $i \in I, j \in J$\\
+$d_k$ & deficiency variable for objective $k$ & $k\in K$
+\end{tabular}
+
+
+\subsubsection{Objectives}
+\begin{align}
+\min \quad & 1000d_1+10d_2+d_3 
+\end{align}
+
+\subsubsection{Constraints}
+\begin{align}
+\sum_{i\in I} \sum_{j\in J} x_{ij}(a_j-r_i) -d_1& \leq 40\ 000\ \text{ft}^2  & \text{(P1: unused land cost)} \\
+ \sum_{i\in I} \sum_{j\in J} x_{ij}c_i - d_2& < \$1.2\  \text{million} & \text{(P2: construction cost)} \\
+\sum_{i\in I} \sum_{j\in J} x_{ij}u_{ij} +d_3 & \geq 200\ 000\ \text{days}  & \text{(P3: user days)} 
+\end{align}
+\begin{align}
+\sum_{i\in I} x_{ij}r_i &\leq a_j && \forall j\in J & \text{(land capacity)}        \\
+x_{i1}+x_{i6} &= 0  && \forall i \in (2,3,4)  & \text{(no facilities on site 1 and 6)}\\
+x_{1j} &= 0 && \forall j\in (2,3,4,5) & \text{(no golf on site 2 to 4)}\\
+x_{11} + x_{16} &\leq 1 && & \text{(either site 1 or 6 can build golf)}
+\end{align}
+
+\subsubsection{Solution}
+
+\newpage
+\subsection{Question 2 (e) - Basic goal programming efficiency adjustment}
+\subsubsection{Sets}
+\begin{tabular}{lll}
+	$K$ & set of objectives $K \in (1,2,3)$\\
+	$I$ & set of facility types $I \in (1,\dots,4)$ as (Golf, Swimming, Gymnasium, Tennis)\\
+$J$ & set of sites $J \in (1,\dots, 6)$ 
+\end{tabular}
+
+\subsubsection{Parameters}
+
+\begin{tabular}{lll}
+$d_{ij}$ & \text{user days for facility $i$ on site $j$} & $i \in I, j \in J$\\
+$a_{j}$ & \text{available land on site $j$ in ft$^2$} &  $j \in J$\\
+$c_{i}$ & \text{construction cost for facility $i$ in \$} & $i \in I$\\
+$r_{i}$ & \text{required land for facility $i$ in ft$^2$} & $i \in I$
+\end{tabular}\\
+
+
+\subsubsection{Variables}
+
+\begin{tabular}{lll}
+$x_{ij}$ & 
+$	\begin{cases} 
+      	1 & \text{facility $i$ is built on site $j$} \\
+      	0 & \text{if else} 
+	\end{cases}$ & $i \in I, j \in J$\\
+$d_k$ & deficiency variable for objective $k$ & $k\in K$
+\end{tabular}
+
+\subsubsection{Objectives}
+A small number $0.001$ has been selected as the adjustment factor with positive and negative signs applied for minimisation and maximisation respectively.
+\begin{align}
+	\begin{split}
+	\min \quad \sum_{k\in K}d_k &+ 0.001(\sum_{i\in I} \sum_{j\in J} x_{ij}c_i)\\
+		&+ 0.001(\sum_{i\in I} \sum_{j\in J} x_{ij}a_j-x_{ij}r_i)\\
+		&- 0.001(\sum_{i\in I} \sum_{j\in J} x_{ij}u_{ij})	
+	\end{split}
+\end{align}
+
+\subsubsection{Constraints}
+\begin{align}
+\sum_{i\in I} \sum_{j\in J} x_{ij}(a_j-r_i) -d_1& \leq 40\ 000\ \text{ft}^2  & \text{(P1: unused land cost)} \\
+ \sum_{i\in I} \sum_{j\in J} x_{ij}c_i - d_2& < \$1.2\  \text{million} & \text{(P2: construction cost)} \\
+\sum_{i\in I} \sum_{j\in J} x_{ij}u_{ij} +d_3 & \geq 200\ 000\ \text{days}  & \text{(P3: user days)} 
+\end{align}
+\begin{align}
+\sum_{i\in I} x_{ij}r_i &\leq a_j && \forall j\in J & \text{(land capacity)}        \\
+x_{i1}+x_{i6} &= 0  && \forall i \in (2,3,4)  & \text{(no facilities on site 1 and 6)}\\
+x_{1j} &= 0 && \forall j\in (2,3,4,5) & \text{(no golf on site 2 to 4)}\\
+x_{11} + x_{16} &\leq 1 && & \text{(either site 1 or 6 can build golf)}
+\end{align}
+
+\subsubsection{Solution}
+
 \end{document}
