@@ -1,13 +1,11 @@
 library(tidyverse)
 library(gridExtra)
 library(lpSolve)
+library(extrafont) 
 
 ### ================ Question 1 
-
 w <- 12
 h <- 12
-
-
 
 lp(direction = "min",
    objective.in = c(1,4),
@@ -49,13 +47,13 @@ data.frame(x, c1,c2,c3,c4) %>%
   geom_point(data = df.pointsOptimal, aes(x=x, y=y), color = "turquoise", size = 5)+
   geom_point(data = df.pointsOptimal, aes(x=x, y=y))+
   coord_cartesian(xlim = c(0,lengthX), ylim = c(0,lengthY))+
-  labs(x="X2", y="X1", title = "Optimal points for Z1 and Z2")+
+  labs(x="X2", y="X1")+
   geom_abline(slope = 1/5, intercept = c(4,-1), linetype = "dashed", color = "black")+
   geom_abline(slope = -4, intercept = c(4,20), linetype = "dotted", color = "black")+
   geom_label(data = df.pointsOptimal,aes(x+.5,y,label=pointOptimal.coords))+
   theme_light()
 
-ggsave("Optimal points for Z1 and Z2.pdf",dpi = "retina", width = w, height = h, units = "cm")
+ggsave("Optimal_points_Z1_Z2.pdf",dpi = "retina", width = w, height = h, units = "cm")
 
 # === Which points are eff
 
@@ -72,13 +70,12 @@ data.frame(x, c1,c2,c3,c4) %>%
   geom_point(data = df.pointsOptimal, aes(x=x, y=y), color = "turquoise", size = 5)+
   geom_point(data = df.points, aes(x=x, y=y))+
   coord_cartesian(xlim = c(0,lengthX), ylim = c(0,lengthY))+
-  labs(x="X2", y="X1", title = "Efficient, dominated and other points")+
+  labs(x="X2", y="X1")+
   geom_abline(slope = 1/5, intercept = z1.intercept, linetype = "dashed", color = "black")+
   geom_abline(slope = -4, intercept = z2.intercept, linetype = "dotted", color = "black")+
   geom_label(data = df.points,aes(x+.5,y,label=point.coords))+
   theme_light()
-
-ggsave("Efficient, dominated and other points.pdf",dpi = "retina", width = w, height = h, units = "cm")
+ggsave("Efficient_dominated_other_points.pdf",dpi = "retina", width = w, height = h, units = "cm")
 
 # Question 1 c - pre-emptive
 
@@ -121,13 +118,45 @@ data.frame(x,c1,c2,c3,c4) %>%
   geom_point(data = df.pointsOptimal[2,], aes(x=x, y=y), color = "turquoise", size = 5)+
   geom_point(data = df.pointsOptimal, aes(x=x, y=y))+
   coord_cartesian(xlim = c(0,lengthX), ylim = c(0,lengthY))+
-  labs(x="X2", y="X1", title = "Pre-emptive")+
+  labs(x="X2", y="X1")+
   geom_abline(slope = 1/5, intercept = z1.intercept, linetype = "dashed", color = "black")+
   geom_abline(slope = -4, intercept = z2.intercept, linetype = "dotted", color = "black")+
-  geom_label(data = df.pointsOptimal,aes(x+.5,y,label=point.coords))+
-  theme_light()
+  geom_label(data = df.pointsOptimal,aes(x+.5,y,label=point.coords))
 
-ggsave("Pre-emptive.pdf",dpi = "retina", width = w, height = h, units = "cm")
+ggsave("Pre_emptive.pdf",dpi = "retina", width = w, height = h, units = "cm")
+
+
+
+#Pre-emptive with constraint from past solution
+c5 <- 1/5*(x)-1
+upper <- rep(lengthY, lengthX+1)
+
+
+data.frame(x,c1,c2,c3,c4,c5) %>% 
+  ggplot(aes(x = x))+
+  geom_line(aes(y=c1), alpha = 0.6)+
+  geom_line(aes(y=c2), alpha = 0.6)+
+  geom_line(aes(y=c3), alpha = 0.6)+
+  geom_line(aes(y=c4), alpha = 0.6)+
+  geom_ribbon(aes(ymin = pmax(c1,c2,c3,c4),
+                  ymax = c(5,5,5,5,4,0,0.2)),
+              fill = 'gold', 
+              alpha = 0.8)+
+  geom_point(data = df.pointsOptimal[2,], aes(x=x, y=y), color = "turquoise", size = 5)+
+  geom_point(data = df.pointsOptimal, aes(x=x, y=y))+
+  coord_cartesian(xlim = c(0,lengthX), ylim = c(0,lengthY))+
+  labs(x="X2", y="X1")+
+  geom_abline(slope = 1/5, intercept = z1.intercept, linetype = "dashed", color = "black")+
+  geom_abline(slope = -4, intercept = z2.intercept, linetype = "dotted", color = "black")+
+  geom_label(data = df.pointsOptimal,aes(x+.5,y,label=point.coords))
+
+ggsave("Pre_emptive2.pdf",dpi = "retina", width = w, height = h, units = "cm")
+
+
+
+
+
+
 
 # Eff fronteir 
 
@@ -152,10 +181,10 @@ df.eff %>%
   ggplot(aes(x=x, y=y))+
   geom_path()+
   geom_point()+
-  labs(x="X2", y="X1", title = "Efficient frontier")+
+  labs(x="X2", y="X1")+
   geom_label(aes(x,y+.3,label=paste(x,y,sep=",")))+
   theme_light()
   
-ggsave("Efficient frontier.pdf",dpi = "retina", width = w, height = h, units = "cm")
+ggsave("Efficient_frontier.pdf",dpi = "retina", width = w, height = h, units = "cm")
 
 
