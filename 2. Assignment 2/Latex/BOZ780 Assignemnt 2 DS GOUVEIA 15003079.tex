@@ -1,0 +1,179 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[margin=30mm]{geometry}
+\usepackage{graphicx}
+	\graphicspath{
+		{graphics/}
+	}
+\usepackage{hyperref}
+	\hypersetup{
+		colorlinks=true,
+		linkcolor=blue,
+		filecolor=blue,
+		urlcolor=blue,
+		citecolor=blue
+	}
+%\usepackage[sort&compress]{natbib}
+%	\bibliographystyle{apalike}
+\usepackage{soul}
+\usepackage{url}
+
+
+% Damien added packages
+\usepackage{listings}
+\lstset{language=R,
+    basicstyle=\small\ttfamily,
+    stringstyle=\color{DarkGreen},
+    otherkeywords={0,1,2,3,4,5,6,7,8,9},
+    morekeywords={TRUE,FALSE},
+    deletekeywords={data,frame,length,as,character},
+    keywordstyle=\color{blue},
+    commentstyle=\color{DarkGreen},
+}
+\usepackage{float}
+
+\newcommand{\jwj}[1]{{\color{red}{~(jwj: #1)}}}
+\newcommand{\yourInitials}[1]{{\color{blue}{~(yourInitials: #1)}}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{}{10pt}{}
+\titleformat{\subsubsection}{\normalfont\small\bfseries}{}{30pt}{}
+
+
+%=======================================
+
+\title{BOZ780 Assignment 1}
+\author{DS de Gouveia \\ 15003079}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Question 2}
+\subsection{Question 1 (a) - Stochastic program formulation}
+
+\subsubsection{Assumptions}
+\begin{itemize}
+	\item If a project is selected all of it's cash flows will be implemented. If two or more projects are selected, their combined cashflow requirement is aggregated and compared to the available cash flow.
+	\item The cashflows of each project may change but the NPV will remain the same, that is the NPV is independent on the cashflow. 
+\end{itemize}
+
+
+\subsubsection{Sets}
+
+\begin{tabular}{ll}
+$T$ & set of years $T \in (1,2,3)$ \\
+$I$ & set of projects $I \in (1,\dots, 10)$ 
+\end{tabular}\\
+
+\subsubsection{Parameters}
+
+\begin{tabular}{ll}
+$a_{t} \triangleq$ & cash in millions of dollars available for investment in year $t$, where  $t \in T$\\
+$c_{it} \triangleq$ & cost of project $i$ in year $t$, where $t \in T, i \in I$\\
+$n_{i} \triangleq$ & net present value of project $i$, where  $i \in I$\\
+\end{tabular}
+
+\subsubsection{Variables}
+
+\begin{tabular}{lll}
+$x_{i} \triangleq$ & 
+	$\begin{cases} 
+      	1 & \text{project $i$ is selected} \\
+      	0 & \text{otherwise} 
+	\end{cases}$ & $i \in I, j \in J$
+\end{tabular}\\
+
+\setcounter{equation}{0}	
+
+\subsubsection{Objective}
+The objective of the investment is to increase profitability. The Net Present Value (NPV) is a means of assessing future profitability whilst accounting for inflation. Thus the objective of the model is to maximise the NPV whilst adhering to cash flow constraints.
+
+\begin{equation}
+	\max z = \sum_{i\in I} x_i n_i
+\end{equation}
+
+\subsubsection{Constraints}
+Of the two constraints, the first has been identified as an uncertain constraint denoted as $\tilde{c}_{it}$ below.
+
+\begin{align}
+	\sum_{i\in I} x_i\tilde{c}_{it} \leq a_t && \forall t\in T \\
+	x_i \in \{0,1\} && \forall i\in I
+\end{align}
+
+The problem shall be formulated using the expected value of the uniform distribution, which in this case is the value prescribed in Table 1. The constraints are amended to use the expected value denoted as $E({c}_{it})$.
+
+\begin{align}
+	\sum_{i\in I} x_iE({c}_{it}) \leq a_t && \forall t\in T \\
+	x_i \in \{0,1\} && \forall i\in I
+\end{align}
+
+\newpage
+
+%================================================================
+
+\subsection{Question 1 (b) - Stochastic program formulation}
+
+\subsubsection{Assumptions}
+The following question refers to the previously defined formulation.
+
+\subsubsection{Problem formulation}
+The expected value formulation is disregarded and the uncertain constraints are reintroduced.
+
+\begin{equation}
+	\max z = \sum_{i\in I} x_i n_i
+\end{equation}
+
+Subject to
+
+\begin{align}
+	\sum_{i\in I} x_i\tilde{c}_{it} \leq a_t && \forall t\in T \label{q1b7}		\\
+	x_i \in \{0,1\} && \forall i\in I
+\end{align}
+
+Constraint \ref{q1b7} is applicable for 90\% of the time. To accommodate this requirement, the constraint is expressed as
+\begin{equation}
+	P(\sum_{i\in I} x_i\tilde{c}_{it} \leq a_t)\geq 0.9
+	\label{q1b9}
+\end{equation}
+where $P$ indicates the probability of this constraint being used. To solve this problem, a set of $N$ constraints must be derived from a random sample of the uniformly distributed variable $\tilde{c}_{it}$ which will convert equation \ref{q1b9} into the following form.
+\begin{align}
+	F(x,\zeta^v)\leq 0 \geq 1 - \alpha && v=1,\dots,N
+\end{align}
+
+The scenario approach is implemented as follows.
+
+\begin{align}
+	P(\sum_{i\in I} x_i\tilde{c}_{it} \leq a_t)\geq  1-0.1
+	\label{q1b11}
+\end{align}
+
+From this form we can deduce that $\alpha = 0.1$ and $n= 10$. It is then assumed that a 99\% confidence interval should be applied resulting in a $\zeta = 0.01$. The confidence interval ensures that 99\% of the samples will satisfies the constraint 90\% of the time. These values are used to evaluate the number of samples $N$ using the following formula.
+
+\begin{align}
+	N=[ 2n\alpha^{-1}\ln(\frac{12}{\alpha}) + 2\alpha^{-1}\ln(\frac{2}{\zeta})+2n]
+	\label{q1eqN}
+\end{align}
+
+The known values are inserted into the formula and $N$ is calculated.
+
+\begin{align}
+	N&=[ 2(10)(0.1)^{-1}\ln(\frac{12}{0.1}) + 2(0.01)^{-1}\ln(\frac{2}{0.01})+2(10)]\\
+	N& = 1083.465 \approx 1084
+\end{align}
+
+The constraint may be reformulated as 
+
+\begin{align}
+	\sum_{i\in I} x_ic^{q}_{it} \leq a_t && \forall q\in Q
+\end{align}
+
+where $|Q| = N = 1084$ is the sample set.
+
+\end{document}
