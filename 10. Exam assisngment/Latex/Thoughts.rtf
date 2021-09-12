@@ -1,0 +1,164 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \\section*\{Thoughts\}\
+\
+\\begin\{description\}\
+	\\item[Step 1:] Schedule known projects\
+	\\item[Step 2:] Schedule new projects\
+	\\item[Step 3:] Schedule improvement projects\
+	\\item[Step 4:] Minimise risk of over capacity by removing improvement projects, then new projects (if applicable) using goal seek approach - override the previous two phases. This last phase will also consider delays both known and possible. The approach here must penalise the model for under-capacity (rate of improvement project) as well as overcapacity (rate of out sourcing).\
+\\end\{description\}\
+\
+Resource allocation problem \
+Allocation of projects to resources to ensure no wasted resources \
+Improvement projects can be initiated at discounted price - making half the income than no income from the available resource \
+Consider known vs stochastic demand.\
+Known: We merely need to schedule improvement projects to maximize utilisation and cost\
+Unknown: Risk is introduced into the model in which future projects are not know. Thus when a project is scheduled, it must be \
+Three perspectives\
+Resource allocation \
+Shortage: No enough resources what drives the cost? Binary variable to hire temp resource. \
+Surplus: What drives the cost?\
+Cost \
+Selling price will influence if a customer buys the product\
+Risk\
+Risk of overcapacity on non-billable work\
+If we improve the resource utilisation based on possible work, we might run the risk of not achieving anything\
+\
+Company must first asses the resource allocation, then the cost then the risk to determine if the additional projects are suitable.\
+Make a recommendation not on the final solution but by considering both perspectives\
+\
+Consultancy firms sell specialised knowledge generated and applied by skilful resources to organisations that cannot solve such problems themselves. Both parties agree on a scope which defines the what must be solved, when it must be solved by and how much will it cost to solve such a problem. The consultancy firm may choose to charge for milestones or time and materials. \
+To cover the cost of the specialised labour, the consultancy firm must generate.\
+\
+%todo Explain that resource allocation is still important but cannot solve the problem. \
+\
+Projects generate income by resources billing time against the project. If resources do not bill, they do not generate an income and the firm cannot cover it's costs. Project are not certain either and thus resources must be utilised at full capacity as often as possible. The problem is that sometimes no projects are available, during such time resources cannot bill. In essence, consulate firms are selling a product that expires immediately; time.\
+\
+The air line industry has faced similar issues. There is a fixed costs associated with flying a plane. Yield management was derived to ensure ticket pricing at a certain time was correct to ensure the plan was at full capacity.\
+\
+The hotel industry faces a similar problem in which a vacant room generates no income but a rom at half price will at a bare minimum cover the cost.\
+\
+Applications of yield management in consultancy firms have been impliemnted in terms of product diferenctiation. Resource optimisation by leveraing price.\
+\
+The onset of new and scalable technology developments has spurred many organisation to implement or upgrade their existing enterprise systems. Partnering with the software vendors, specialised consulting firms assist in the technical and functional delivery of such projects. \
+\
+\\subsection*\{Deterministic formulation\}\
+Projects are known exactly.\
+\
+Existing projects. Cater for run over of existing projects. Schedule new projects. Schedule improvement projects.\
+\
+%todo what is the best practice for naming conventions\
+\
+\\begin\{tabular\}\{ll\}\
+$x_\{it\}\\triangleq$ & $\\begin\{cases\}\
+                    1 & \\text\{if project $i$ is scheduled at time $t$, where $i\\in I$,$t \\in T$\} \\\\\
+                    0 & \\text\{otherwise\}\
+                    \\end\{cases\}$ \\\\\
+$y_\{jt\}\\triangleq$ & $\\begin\{cases\}\
+                    1 & \\text\{if improvement project $j$ is scheduled at time $t$, where $j\\in J$,$t \\in T$\} \\\\\
+                    0 & \\text\{otherwise\}\
+                    \\end\{cases\}$ \\\\\
+$r_t \\triangleq$ & number of available resources for month $t$ \\\\\
+$q_i \\triangleq$& number of required resources for project $i$ \\\\\
+$q_j \\triangleq$& number of required resources for improvement project $j$ \\\\\
+$\\tilde\{l\}_i \\triangleq$& likelihood of project $i$ occurring \\\\\
+$\\tilde\{s\}_\{it\} \\triangleq$& month $i$ in which project $j$ cannot be worked on\\\\\
+\\end\{tabular\}\
+\
+The resource utilisation for each time period can be calculated as follows\
+\\begin\{equation\}\
+	\\max z = \\sum_\{t=1\}^T\\bigg\{(\}\\sum_\{i=1\}^I x_\{it\}q_i + \\sum_\{j=1\}^J y_\{it\}q_j \\bigg\{)\}\
+\\end\{equation\}\
+\
+Subject to\
+\
+\\begin\{align\}\
+	x_\{it\} \\leq \\tilde\{s_\{it\}\} && \\forall i \\in I, \\forall t \\in T \\\\\
+	\\sum_\{i=1\}^Ix_\{it\}q_i + \\sum_\{j=1\}^J y_\{it\}q_j\\leq r_t && \\forall t \\in T \\\\\
+	\\sum_\{t=1\}^Tx_\{it\} \\leq \\tilde\{l\}_i && \\forall t \\in T\
+\\end\{align\}\
+\
+\
+\
+===================================================================\
+\
+\
+\
+\\begin\{tabular\}\{ll\}\
+$x_\{it\}\\triangleq$ & $\\begin\{cases\}\
+                    1 & \\text\{if improvement project $i$ is scheduled at time $t$, where $i\\in I$,$t \\in T$\} \\\\\
+                    0 & \\text\{otherwise\}\
+                    \\end\{cases\}$ \\\\\
+$\\tilde\{s\}_\{jt\} \\triangleq$&  random variable indicating the scheduled status of the project $j$ in month $i$, \\\\\
+& where $j\\in J$\\\\\
+$r_t \\triangleq$ & number of available resources for month $t$ \\\\\
+$q_i \\triangleq$& number of required resources for improvement project $i$ \\\\\
+$u_j \\triangleq$& number of required resources for project $j$ \\\\\
+\\end\{tabular\}\
+\
+\
+\
+\
+\\begin\{equation\}\
+	\\min z = d_1 + d_2 + \\epsilon \\bigg\{(\} \\sum_\{t=1\}^T\\sum_\{i=1\}^I\\sum_\{j=1\}^J \\frac\{x_\{it\}q_i+\\tilde\{s\}_\{jt\}u_j\}\{r_t\} + \\sum_\{i=1\}^I x_\{it\}q_j + \\sum_\{j=1\}^J \\tilde\{s_\{jt\}\}u_j\\bigg\{)\}\
+\\end\{equation\}\
+\
+Subject to\
+\
+\\begin\{align\}\
+	\\label\{eq.cont1\}\
+	\\sum_\{t=1\}^T\\sum_\{i=1\}^I\\sum_\{j=1\}^J \\frac\{x_\{it\}q_i+\\tilde\{s\}_\{jt\}u_j\}\{r_t\} +d_1 \\geq 0.8  \\\\ \
+	\\label\{eq.cont2\}\
+	\\sum_\{i=1\}^I x_\{it\}q_j + \\sum_\{j=1\}^J \\tilde\{s\}_\{jt\}u_j -d_2\\leq r_t && \\forall t \\in T \\\\\
+	x_\{it\} \\in \\\{1,0\\\} && \\forall i \\in I, \\forall j \\in J \\\\\
+		d_1,d_2 \\geq 0\
+\\end\{align\}\
+Constraint \\ref\{eq.cont1\} ensures that the resource utilisation as a percentage is at least 80\\% and penalises the objective function if the utilisation is below the goal. Constraint \\ref\{eq.cont2\} ensures that the total resource utilisation stays below the maximum capacity and if the maximum capacity is surpassed, the objective function is penalised.\
+\
+\\subsection\{Deterministic equivalent\}\
+To solve the optimisation problem a deterministic equivalent must be formulated. %TODO add why we using the thing we are\
+Constraint %TODO add conrt \
+ is applicable for 90\\% of the time. To accommodate this requirement, the constraint is expressed as\
+ \\begin\{align\}\
+	P\\bigg\{(\}\\sum_\{t=1\}^T\\sum_\{i=1\}^I\\sum_\{j=1\}^J \\frac\{x_\{it\}q_i+\\tilde\{s\}_\{jt\}u_j\}\{r_t\} +d_1 \\geq 0.8\\bigg\{)\} \\geq 0.9  \\\\ \
+	P\\bigg\{(\}\\sum_\{i=1\}^I x_\{it\}q_j + \\sum_\{j=1\}^J \\tilde\{s\}_\{jt\}u_j -d_2\\leq r_t\\bigg\{)\} \\geq 0.9  && \\forall t \\in T \
+\\end\{align\}\
+ \
+\
+where $P$ indicates the probability of this constraint being used. To solve this problem, a set of $N$ constraints must be derived from a random sample of the uniformly distributed variable $\\tilde\{c\}_\{it\}$ which will convert equation \\ref\{q1b9\} into the following form.\
+\\begin\{align\}\
+	P\\big\{(\}F(x,\\zeta^v)\\leq 0 \\big\{)\} \\geq 1 - \\alpha && v=1,\\dots,N\
+\\end\{align\}\
+\
+The scenario approach is implemented as follows.\
+\
+\\begin\{align\}\
+	P\\bigg\{(\}\\sum_\{t=1\}^T\\sum_\{i=1\}^I\\sum_\{j=1\}^J \\frac\{x_\{it\}q_i+\\tilde\{s\}_\{jt\}u_j\}\{r_t\} +d_1 \\geq 0.8\\bigg\{)\} \\geq  1-0.1   \\\\ \
+	P\\bigg\{(\}\\sum_\{i=1\}^I x_\{it\}q_j + \\sum_\{j=1\}^J \\tilde\{s\}_\{jt\}u_j -d_2\\leq r_t\\bigg\{)\}\\geq  1-0.1\
+	\\label\{q1b11\}\
+\\end\{align\}\
+\
+From this form we can deduce that $\\alpha = 0.1$ and $n$ is equivalent to the number of random variables. It is then assumed that a 99\\% confidence interval should be applied resulting in a $\\delta = 0.01$. The confidence interval ensures that 99\\% of the samples will satisfies the constraint 90\\% of the time. These values are used to calculate the number of $N$ samples  using the following formula.\
+\
+\\begin\{align\}\
+	N=[ 2n\\alpha^\{-1\}\\ln(\\frac\{12\}\{\\alpha\}) + 2\\alpha^\{-1\}\\ln(\\frac\{2\}\{\\delta\})+2n]\
+	\\label\{q1eqN\}\
+\\end\{align\}\
+\
+The known values are inserted into the formula and the constraint may be reformulated as \
+\
+\\begin\{align\}\
+\\sum_\{i=1\}^I x_\{it\}q_j + \\sum_\{j=1\}^J s_\{jt\}^\{q\}u_j -d_2\\leq r_t && \\forall t \\in T,\\forall q\\in Q \\\\\
+\\sum_\{t=1\}^T\\sum_\{i=1\}^I\\sum_\{j=1\}^J \\frac\{x_\{it\}q_i+s^q_\{jt\}u_j\}\{r_t\} +d_1 \\geq 0.8  \
+\\end\{align\}\
+\
+where $|Q| = N$ is the sample set. \
+\
+In this formulation the random variable occurs in the objective function. To formulate a deterministic equivalent, the most constraining scenario $N$ shall be used as the coefficients for $\\tilde\{s\}_\{jt\}$. This shall not have an impact on the model as the most constraining scenario will be implemented and as this term in the objective function is sufficiently small.\
+}

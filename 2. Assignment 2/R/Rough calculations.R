@@ -3,7 +3,10 @@ N_Prob_FN <- function(n,a,z){
 }
 
 
-N_Prob_FN(n = 1, a = 0.05, z = 0.01)
+N_Prob_FN(n = 5, a = 0.2, z = 0.05)
+
+
+
 N_Prob_FN(n = 10, a = 0.1, z = 0.01)
 
 N_Prob_FN(n = 5, a = 0.05, z = 0.05)

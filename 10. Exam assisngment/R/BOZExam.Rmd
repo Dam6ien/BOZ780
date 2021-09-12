@@ -1,0 +1,196 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+#Library import
+```{r}
+library(tidyverse)
+library(lpSolve)
+```
+#Custom function
+```{r}
+#Generate list of 0 and 1 for constraint creation
+matMaker <- function(ones,len){
+  temp <- rep(0,len)
+  temp[ones] <- 1
+  return(temp)
+}
+
+set.seed(123123)
+```
+
+
+
+# Pre-calculations
+The following code evaluates the number of scenarios to be generated
+```{r}
+N_Prob_FN <- function(n,a,z){
+  return(2*n*a^-1*log(12/a)+2*a^-1*log(2/z)+2*n)
+}
+
+N <- round(N_Prob_FN(n = 5, a = 0.2, z = 0.05),0)
+N
+```
+
+
+# Random constraint function 
+When called, this function will generate a random instance of s_jt
+```{r}
+fn.s_jt <- function(){
+  
+# z1 <- round(runif(1,50,75),0)
+# z2 <- round(runif(1,250,300),0)
+# z3 <- round(runif(1,100,150),0)
+# z4 <- round(runif(1,50,100),0)
+
+
+z1 <- round(runif(1,50,200),0)
+z2 <- round(runif(1,100,350),0)
+z3 <- round(runif(1,100,300),0)
+z4 <- round(runif(1,50,300),0)
+
+
+          # time t ->
+s_jt<- c(220,160,160,320,320,160,80,80,60,60,60,0, 
+          80,80,80,160,160,z1,z1,0,0,0,0,0,           
+          0,0,0,0,0,z2,z2,z2,z2,z2,z2,z2,
+          z3,z3,z3,z3,z3,z3,z3,z3,z3,z3,z3,z3,
+          0,0,0,0,0,z4,z4,250,250,250,200,0
+          )
+
+
+return(s_jt)
+}
+
+fn.s_jt()
+
+
+
+```
+
+
+
+# Varibale definition
+
+```{r}
+t <- 12
+j <- 5
+r <- 1600
+e <- 0.0000001
+
+obj.xt <- e*(r^(-1) +1)
+
+#        d1, d2, x1 -> x12
+obj <- c(1,1,-rep(obj.xt,12))
+
+const1.lhs.q <- data.frame()
+const1.rhs.q <- data.frame()
+const2.lhs.q <- data.frame()
+const2.rhs.q <- data.frame()
+
+const1.eql <- rep("<=", N*t) %>% matrix(byrow = TRUE, ncol = 1)
+const2.eql <- rep(">=",N) %>% matrix(byrow = TRUE, ncol = 1)
+
+for ( i in 1:N){
+  
+  const.random <- fn.s_jt() # for each q Zb changes, not for each constraint 
+  
+  const1.lhs <- cbind(rep(0,t),rep(-1,t),diag(t))
+  const1.rhs <- r-c(sum(matMaker(ones = seq(1, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(2, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(3, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(4, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(5, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(6, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(7, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(8, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(9, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(10, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(11, to = t*j, by = 12),len = t*j)*const.random),
+                sum(matMaker(ones = seq(12, to = t*j, by = 12),len = t*j)*const.random)) %>% matrix(byrow = TRUE, nrow = t)
+  
+
+  const2.lhs <- c(1,0,rep(1,12)/r)
+
+  
+  const2.rhs <- 0.8 - sum(const.random/(r*t*j))
+  
+  
+  const1.lhs.q <- rbind(const1.lhs.q, const1.lhs) %>% as.matrix()
+  const1.rhs.q <- rbind(const1.rhs.q, const1.rhs) %>% as.matrix()
+  const2.lhs.q <- rbind(const2.lhs.q, const2.lhs) %>% as.matrix()
+  const2.rhs.q <- rbind(const2.rhs.q, const2.rhs) %>% as.matrix()
+}
+
+
+#const1.lhs.q
+#const1.rhs.q
+#const2.lhs.q
+#const2.rhs.q
+
+const.lhs <- rbind(const1.lhs.q,const2.lhs.q)
+const.rhs <- rbind(const1.rhs.q,const2.rhs.q)
+const.eql <- rbind(const1.eql,const2.eql)
+
+lp <- lp(direction = "min", 
+   objective.in = obj, 
+   const.mat = const.lhs, 
+   const.dir = const.eql, 
+   const.rhs = const.rhs)
+
+lp
+
+lp$solution %>% round(digits = 2)
+
+
+```
+
+# Solving the linear programme
+```{r}
+
+
+var.Utilisation <- c()
+
+  
+for (i in 1:10000){
+  var.Utilisation[i] <- mean((matrix(data = fn.s_jt(),byrow = TRUE, ncol = 12)%>% colSums() + lp$solution[3:14])/r)
+}
+
+gg.overviewPlot <- var.Utilisation %>% as.data.frame %>% ggplot(aes(x = var.Utilisation))+geom_histogram()+
+  labs(x = "Utilisation (%)", y = "Count")+
+  theme_gray(base_size = 11, base_family = "serif")+
+  theme(legend.title=element_blank(), legend.position="bottom")+
+  scale_fill_grey(start = 0, end = 0.7)
+
+ #ggsave(plot = gg.overviewPlot, device = "pdf", filename = "../Images/GGplotOverview.pdf", units = "cm", width = 15.056, height = 7)
+
+ gg.overviewPlot
+ 
+```
+
+
+```{r}
+gg.sens.1 <- data.frame(var.Utilisation0 ,var.Utilisation1,var.Utilisation2) %>% 
+  ggplot()+
+  geom_density(aes(x = var.Utilisation0, fill ="Base case (800 hours)"))+
+  geom_density(aes(x = var.Utilisation1, fill= "Quater capacity (600 hours)"))+
+  geom_density(aes(x = var.Utilisation2, fill ="Double capacity (1600 hours)"))+
+  theme_gray(base_size = 11, base_family = "serif")+
+  theme(legend.title=element_blank(), legend.position="bottom", axis.title.y = element_blank())+
+  scale_fill_grey(start = 0, end = 0.8)+
+  labs(x = "Utilisation (%)")
+
+ggsave(plot = gg.sens.1, device = "pdf", filename = "../Images/ggsens.pdf", units = "cm", width = 15.056, height = 7)
+gg.sens.1
+
+
+
+var.Utilisation0 %>% mean()
+(var.Utilisation1 %>% mean() - var.Utilisation0 %>% mean()) *100
+(var.Utilisation2 %>% mean() - var.Utilisation0 %>% mean()) *100
+
+(var.Utilisation%>% mean() - var.Utilisation0 %>% mean()) *100
+```
+
+
+
